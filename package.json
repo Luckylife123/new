@@ -6,7 +6,8 @@
     "wrap": "ts-node wrap_unwrap_sol.ts wrap",
     "unwrap": "ts-node wrap_unwrap_sol.ts unwrap",
     "wrap:amount": "ts-node wrap_unwrap_sol.ts wrap",
-    "unwrap:amount": "ts-node wrap_unwrap_sol.ts unwrap"
+    "unwrap:amount": "ts-node wrap_unwrap_sol.ts unwrap",
+    "sell": "ts-node sell_token.ts"
   },
   "dependencies": {
     "@project-serum/serum": "^0.13.65",
