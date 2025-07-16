@@ -1,1 +1,2 @@
 copy of https://github.com/Joko588/Solana-Raydium-Sniper-Bot-2025?tab=readme-ov-file
+npm run wrap:amount -- 0.001
