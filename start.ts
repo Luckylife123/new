@@ -29,6 +29,7 @@ import {
 import { getTokenAccounts, RAYDIUM_LIQUIDITY_PROGRAM_ID_V4, OPENBOOK_PROGRAM_ID, createPoolKeys } from './liquidity';
 import { retry } from './utils';
 import { retrieveEnvVariable, retrieveTokenValueByAddress} from './utils';
+import { hasSocialMediaAndLogo} from './utils';
 import { getMinimalMarketV3, MinimalMarketLayoutV3 } from './market';
 import { MintLayout } from './types';
 import pino from 'pino';
@@ -197,6 +198,11 @@ export async function processRaydiumPool(id: PublicKey, poolState: LiquidityStat
       logger.warn({ mint: poolState.baseMint }, 'Skipping, owner can mint tokens!');
       return;
     }
+  }
+  const baseMintStr = poolState.baseMint.toString();
+  if (!await hasSocialMediaAndLogo(baseMintStr)) {
+    logger.info({ mint: baseMintStr }, 'Skipping: missing logo or social links');
+    return;
   }
 
   await buy(id, poolState);

@@ -1,13 +1,10 @@
 import dotenv from 'dotenv';
-import axios, { AxiosResponse } from 'axios';
-import { logger } from '../start';
-import { res } from 'pino-std-serializers';
-import { Logger } from 'pino';
+import axios from 'axios';
+import {logger} from '../start';
+import {Logger} from 'pino';
 
-import { Keypair, Connection, SlotInfo, clusterApiUrl, SystemProgram, PublicKey, Transaction } from '@solana/web3.js';
-import fs from 'fs/promises'; 
-import winston from 'winston';
-import { BehaviorSubject } from 'rxjs';
+import {clusterApiUrl, Connection, Keypair, PublicKey, SlotInfo, SystemProgram, Transaction} from '@solana/web3.js';
+import {BehaviorSubject} from 'rxjs';
 import bs58 from 'bs58';
 
 
@@ -81,6 +78,33 @@ interface TokensResponse {
   pairs: Pair[] | null;
 }
 
+
+export const checkTokenOnDexScreener = async (tokenAddress: string): Promise<boolean> => {
+  try {
+    const url = `https://api.dexscreener.com/latest/dex/search?q=${tokenAddress}`;
+    const response = await axios.get(url);
+    const pairs = response.data?.pairs;
+
+    if (!pairs || pairs.length === 0) return false;
+
+    const info = pairs[0]?.info;
+    if (!info) return false;
+
+    const hasLogo = Boolean(info.imageUrl || info.header || info.openGraph);
+    const hasSocial = (info.socials && info.socials.length > 0) || (info.websites && info.websites.length > 0);
+
+    return hasLogo && hasSocial;
+  } catch {
+    return false;
+  }
+};
+
+export const hasSocialMediaAndLogo = async (tokenAddress: string): Promise<boolean> => {
+
+  return await checkTokenOnDexScreener(tokenAddress);
+};
+
+
 export const retrieveTokenValueByAddressDexScreener = async (tokenAddress: string) => {
   const url = `https://api.dexscreener.com/latest/dex/tokens/${tokenAddress}`;
   try {
@@ -98,13 +122,13 @@ export const retrieveTokenValueByAddressDexScreener = async (tokenAddress: strin
 
 export const retrieveTokenValueByAddressBirdeye = async (tokenAddress: string) => {
   const apiKey = retrieveEnvVariable('BIRDEYE_API_KEY', logger);
-  const url = `https://public-api.birdeye.so/public/price?address=${tokenAddress}`
+  const url = `https://public-api.birdeye.so/defi/price?address=${tokenAddress}`
   try {
     const response: string = (await axios.get(url, {
       headers: {
         'X-API-KEY': apiKey
       }
-    })).data.data.value;
+    })).data.data.priceInNative;
     if (response) return parseFloat(response)
     return undefined;
   } catch (e) {
