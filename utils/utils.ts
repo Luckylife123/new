@@ -98,17 +98,17 @@ export const retrieveTokenValueByAddressDexScreener = async (tokenAddress: strin
 
 export const retrieveTokenValueByAddressBirdeye = async (tokenAddress: string) => {
   const apiKey = retrieveEnvVariable('BIRDEYE_API_KEY', logger);
-  const url = `https://public-api.birdeye.so/public/price?address=${tokenAddress}`
+  const url = `https://public-api.birdeye.so/defi/price?address=${tokenAddress}`
   try {
     const response: string = (await axios.get(url, {
       headers: {
         'X-API-KEY': apiKey
       }
-    })).data.data.value;
+    })).data.data.priceInNative;
     if (response) return parseFloat(response)
     return undefined;
   } catch (e) {
-    return undefined;  
+    return undefined;
   }
 }
 
